@@ -1,6 +1,6 @@
 # Announce Moon And Weather Change Mod<br>
 
-## 1.2.0 (All the animations Update)
+## 2.0.0 (All the animations Update)
 
 \+ Added 2 more animations (Outside mods can technically also add new animations)<br>
 \# Big Code restructure<br>
