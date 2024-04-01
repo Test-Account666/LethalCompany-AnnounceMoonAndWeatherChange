@@ -1,11 +1,11 @@
 using System.Threading;
 using HarmonyLib;
 
-namespace AnnounceMoonAndWeatherChange;
+namespace AnnounceMoonAndWeatherChange.Patches;
 
 [HarmonyPatch(typeof(StartOfRound))]
 public static class StartOfRoundPatch {
-    private static bool _gameFinishedLoading = false;
+    private static bool _gameFinishedLoading;
 
     [HarmonyPatch("Awake")]
     [HarmonyPrefix]
@@ -25,12 +25,13 @@ public static class StartOfRoundPatch {
         if (!_gameFinishedLoading) {
             Timer? timer = null;
 
-            timer = new Timer(_ => {
-                    _gameFinishedLoading = true;
-                    HandleChangeLevel();
-                    timer?.Dispose();
-                }, null, (long)(3.5 * 1000),
-                Timeout.Infinite);
+            timer = new(_ => {
+                            _gameFinishedLoading = true;
+                            HandleChangeLevel();
+                            // ReSharper disable once AccessToModifiedClosure
+                            timer?.Dispose();
+                        }, null, (long) (3.5 * 1000),
+                        Timeout.Infinite);
             return;
         }
 

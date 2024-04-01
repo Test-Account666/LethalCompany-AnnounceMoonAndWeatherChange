@@ -18,7 +18,9 @@ public static class WeatherTweaksSupport {
         if (_getPlanetCurrentWeatherMethod == null && !FetchGetPlanetCurrentWeatherMethod())
             return currentWeather;
 
-        return _getPlanetCurrentWeatherMethod?.Invoke(null, [selectableLevel]) as string;
+        return _getPlanetCurrentWeatherMethod?.Invoke(null, [
+            selectableLevel,
+        ]) as string;
     }
 
     private static bool FetchVariablesType() {
@@ -35,7 +37,9 @@ public static class WeatherTweaksSupport {
 
     private static bool FetchGetPlanetCurrentWeatherMethod() {
         var getPlanetCurrentWeatherMethod = AccessTools.DeclaredMethod(_variablesType, "GetPlanetCurrentWeather",
-            new[] { typeof(SelectableLevel) });
+                                                                       new[] {
+                                                                           typeof(SelectableLevel),
+                                                                       });
 
         if (getPlanetCurrentWeatherMethod == null) {
             AnnounceMoonAndWeatherChange.Logger.LogError("[WT Support] Couldn't find GetPlanetCurrentWeather method!");

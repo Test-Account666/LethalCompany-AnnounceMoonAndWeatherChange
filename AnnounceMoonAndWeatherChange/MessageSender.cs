@@ -1,3 +1,4 @@
+using AnnounceMoonAndWeatherChange.WeatherWarningAnimations;
 using UnityEngine;
 
 namespace AnnounceMoonAndWeatherChange;
@@ -5,9 +6,9 @@ namespace AnnounceMoonAndWeatherChange;
 using Plugin = AnnounceMoonAndWeatherChange; // Way too annoying to type this everytime
 
 internal static class MessageSender {
-    private static readonly int _Display = Animator.StringToHash("display");
     private const string MOON_PLACEHOLDER = "<MOON>";
     private const string WEATHER_PLACEHOLDER = "<WEATHER>";
+    private static readonly int _Display = Animator.StringToHash("display");
 
     internal static void SendWeatherWarning() {
         if (!IsWeatherWarningEnabled())
@@ -38,13 +39,10 @@ internal static class MessageSender {
         DisplayMoonChangeAnnouncement(currentLevel, announceMoonChangeText);
     }
 
-    private static bool IsWeatherWarningEnabled() {
-        return Plugin.configManager?.showWeatherWarning.Value == true;
-    }
+    private static bool IsWeatherWarningEnabled() => Plugin.configManager?.showWeatherWarning.Value == true;
 
-    private static bool IsMoonChangeAnnouncementEnabled() {
-        return Plugin.configManager?.showMoonChangeAnnouncement.Value == true;
-    }
+    private static bool IsMoonChangeAnnouncementEnabled() =>
+        Plugin.configManager?.showMoonChangeAnnouncement.Value == true;
 
     private static string GetCurrentWeather(SelectableLevel currentLevel) {
         var weather = currentLevel.currentWeather.ToString();
@@ -73,10 +71,18 @@ internal static class MessageSender {
     private static void DisplayWeatherWarning(SelectableLevel currentLevel, string weather) {
         var weatherWarningUpperText = Plugin.configManager?.weatherWarningUpperText.Value;
         var weatherWarningLowerText = Plugin.configManager?.weatherWarningLowerText.Value
-            .Replace(MOON_PLACEHOLDER, currentLevel.PlanetName)
-            .Replace(WEATHER_PLACEHOLDER, weather);
+                                            .Replace(MOON_PLACEHOLDER, currentLevel.PlanetName)
+                                            .Replace(WEATHER_PLACEHOLDER, weather);
 
-        var slidingText = HUDManager.Instance.gameObject.AddComponent<SlidingText>();
+        var previousAnimation = HUDManager.Instance.gameObject.GetComponent<WarningAnimation>();
+
+        // ReSharper disable once UseNullPropagation
+        if (previousAnimation is not null)
+            previousAnimation.SpeedUp();
+
+        var animationType = AnimationManager.GetCurrentAnimation();
+
+        var animation = (WarningAnimation) HUDManager.Instance.gameObject.AddComponent(animationType);
 
         var red = Plugin.configManager?.textColorRed.Value;
         var green = Plugin.configManager?.textColorGreen.Value;
@@ -90,15 +96,15 @@ internal static class MessageSender {
             return;
         }
 
-        slidingText.textColor = new Color(red.Value, green.Value, blue.Value);
+        animation.textColor = new(red.Value, green.Value, blue.Value);
 
-        slidingText.fontSize = (int)Plugin.configManager?.textFontSize.Value!;
+        animation.fontSize = (int) Plugin.configManager?.textFontSize.Value!;
 
-        slidingText.slideSpeed = (float)Plugin.configManager?.scrollSpeed.Value!;
+        animation.animationSpeed = (float) Plugin.configManager?.scrollSpeed.Value!;
 
-        slidingText.text = $"{weatherWarningUpperText}\n{weatherWarningLowerText}".Trim();
+        animation.text = $"{weatherWarningUpperText}\n{weatherWarningLowerText}".Trim();
 
-        RoundManager.PlayRandomClip(HUDManager.Instance.UIAudio, HUDManager.Instance.warningSFX, true);
+        RoundManager.PlayRandomClip(HUDManager.Instance.UIAudio, HUDManager.Instance.warningSFX);
     }
 
     private static void DisplayMoonChangeAnnouncement(SelectableLevel currentLevel, string announceMoonChangeText) {
