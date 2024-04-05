@@ -1,5 +1,9 @@
 # Announce Moon And Weather Change Mod<br>
 
+## 2.0.1
+
+\* Fixed not working in some cases (I still have no idea what the hell the issue is, but it's fixed)
+
 ## 2.0.0 (All the animations Update)
 
 \+ Added 2 more animations (Outside mods can technically also add new animations)<br>
