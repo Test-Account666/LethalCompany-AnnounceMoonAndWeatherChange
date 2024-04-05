@@ -41,10 +41,10 @@ public class ConfigManager {
                                                            "The body message displayed, if the moon has a weather. <MOON> is replaced with the moon's name. <WEATHER> is replaced with the moon's weather");
 
         showMoonChangeAnnouncement = _configFile.Bind("Toggles", "1. Show Moon Change Announcement", true,
-                                                      "Wether or not to show the moon change announcement");
+                                                      "Whether or not to show the moon change announcement");
 
         showWeatherWarning = _configFile.Bind("Toggles", "2. Show Weather Warning", true,
-                                              "Wether or not to show the weather warning");
+                                              "Whether or not to show the weather warning");
 
         textFontSize = _configFile.Bind("HUD", "1. Text Font Size", 30, "The font size of the weather warning text");
 
@@ -55,7 +55,8 @@ public class ConfigManager {
                                                                ])));
 
         scrollSpeed = _configFile.Bind("HUD", "3. Animation Speed", 100,
-                                       "The speed for the weather warning animation");
+                                       new ConfigDescription("The speed for the weather warning animation",
+                                                             new AcceptableValueRange<int>(1, 200)));
 
         textColorRed = _configFile.Bind("HUD", "4. Text Color Red", 1F,
                                         new ConfigDescription("How much red do you want to have inside your text?",
