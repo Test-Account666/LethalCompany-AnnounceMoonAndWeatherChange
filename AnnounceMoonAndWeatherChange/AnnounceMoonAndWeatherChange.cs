@@ -33,13 +33,11 @@ public class AnnounceMoonAndWeatherChange : BaseUnityPlugin {
             Logger.LogInfo("WeatherTweaks found! Enabling support for it :)");
         }
 
-        Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
-    }
-
-    private void Start() {
         configManager = new(Config);
 
         configManager.HandleConfig();
+
+        Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
     }
 
     internal static void Patch() {
