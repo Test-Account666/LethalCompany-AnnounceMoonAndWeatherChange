@@ -1,5 +1,9 @@
 # Announce Moon And Weather Change Mod<br>
 
+## 2.0.2
+
+\* Mod should now work with latest v50 again
+
 ## 2.0.1
 
 \* Fixed not working in some cases (I still have no idea what the hell the issue is, but it's fixed)
