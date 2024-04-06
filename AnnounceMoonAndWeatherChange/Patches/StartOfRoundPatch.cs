@@ -9,15 +9,13 @@ public static class StartOfRoundPatch {
 
     [HarmonyPatch("Awake")]
     [HarmonyPrefix]
-    public static void BeforeAwake() {
+    public static void BeforeAwake() =>
         _gameFinishedLoading = false;
-    }
 
     [HarmonyPatch("SetShipReadyToLand")]
     [HarmonyPostfix]
-    public static void AfterSetShipReadyToLand() {
+    public static void AfterSetShipReadyToLand() =>
         MessageSender.SendWeatherWarning();
-    }
 
     [HarmonyPatch("ChangeLevel")]
     [HarmonyPostfix]
@@ -26,12 +24,11 @@ public static class StartOfRoundPatch {
             Timer? timer = null;
 
             timer = new(_ => {
-                            _gameFinishedLoading = true;
-                            HandleChangeLevel();
-                            // ReSharper disable once AccessToModifiedClosure
-                            timer?.Dispose();
-                        }, null, (long) (3.5 * 1000),
-                        Timeout.Infinite);
+                _gameFinishedLoading = true;
+                HandleChangeLevel();
+                // ReSharper disable once AccessToModifiedClosure
+                timer?.Dispose();
+            }, null, (long) (3.5 * 1000), Timeout.Infinite);
             return;
         }
 

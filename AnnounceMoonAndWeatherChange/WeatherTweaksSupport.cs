@@ -36,10 +36,9 @@ public static class WeatherTweaksSupport {
     }
 
     private static bool FetchGetPlanetCurrentWeatherMethod() {
-        var getPlanetCurrentWeatherMethod = AccessTools.DeclaredMethod(_variablesType, "GetPlanetCurrentWeather",
-                                                                       new[] {
-                                                                           typeof(SelectableLevel),
-                                                                       });
+        var getPlanetCurrentWeatherMethod = AccessTools.DeclaredMethod(_variablesType, "GetPlanetCurrentWeather", [
+            typeof(SelectableLevel),
+        ]);
 
         if (getPlanetCurrentWeatherMethod == null) {
             AnnounceMoonAndWeatherChange.Logger.LogError("[WT Support] Couldn't find GetPlanetCurrentWeather method!");

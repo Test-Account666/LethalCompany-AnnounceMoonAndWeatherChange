@@ -30,7 +30,8 @@ public class ConfigManager {
     private void BindConfigValues() {
         announceMoonChangeText = _configFile.Bind<string>("Messages", "1. Announce Moon Change Text",
                                                           "Ship routed to: <MOON>",
-                                                          "The message displayed when moon is changed. <MOON> is replaced with the moon's name");
+                                                          "The message displayed when moon is changed."
+                                                        + " <MOON> is replaced with the moon's name");
 
         weatherWarningUpperText = _configFile.Bind<string>("Messages", "2. Weather Warning Upper Text",
                                                            "!!! WARNING !!!",
@@ -38,7 +39,8 @@ public class ConfigManager {
 
         weatherWarningLowerText = _configFile.Bind<string>("Messages", "3. Weather Warning Lower Text",
                                                            "<MOON> is currently <WEATHER>!",
-                                                           "The body message displayed, if the moon has a weather. <MOON> is replaced with the moon's name. <WEATHER> is replaced with the moon's weather");
+                                                           "The body message displayed, if the moon has a weather."
+                                                         + " <MOON> is replaced with the moon's name. <WEATHER> is replaced with the moon's weather");
 
         showMoonChangeAnnouncement = _configFile.Bind("Toggles", "1. Show Moon Change Announcement", true,
                                                       "Whether or not to show the moon change announcement");
@@ -84,8 +86,7 @@ public class ConfigManager {
             return;
         }
 
-        var orphanedEntries =
-            (Dictionary<ConfigDefinition, string>) orphanedEntriesProperty.GetValue(_configFile, null);
+        var orphanedEntries = (Dictionary<ConfigDefinition, string>) orphanedEntriesProperty.GetValue(_configFile, null);
 
 
         if (orphanedEntries is not {
