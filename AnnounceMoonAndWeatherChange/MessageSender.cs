@@ -136,7 +136,7 @@ internal static class MessageSender {
                 HUDManager.Instance.UIAudio, HUDManager.Instance.warningSFX, true, 1f, 0, 1000,
             ]);
         } catch {
-            // Who needs to logged exceptions anyway, right?
+            // Who needs logged exceptions anyway, right?
             // ignored
         } finally {
             // Grrrr, I'd love to have Early-Return here...
@@ -155,11 +155,14 @@ internal static class MessageSender {
         hudManager.deviceChangeAnimator.SetTrigger(_Display);
     }
 
-    private static bool FetchAndExecutePlayRandomClipMethod(IEnumerable<object> parameters) {
+    private static bool FetchAndExecutePlayRandomClipMethod(IReadOnlyCollection<object> parameters) {
         // Get the method info
         _playRandomClipMethod ??= typeof(RoundManager).GetMethod("PlayRandomClip", BindingFlags.Public | BindingFlags.Static);
 
         if (_playRandomClipMethod is null)
+            return false; // Return false, as we failed to identify the method
+
+        if (_playRandomClipMethod.GetParameters().Length != parameters.Count)
             return false; // Return false, as we failed to identify the method
 
         // ReSharper disable once CoVariantArrayConversion
