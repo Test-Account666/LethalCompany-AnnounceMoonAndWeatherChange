@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using AnnounceMoonAndWeatherChange.WeatherWarningAnimations;
 using UnityEngine;
 
@@ -9,6 +14,8 @@ internal static class MessageSender {
     private const string MOON_PLACEHOLDER = "<MOON>";
     private const string WEATHER_PLACEHOLDER = "<WEATHER>";
     private static readonly int _Display = Animator.StringToHash("display");
+    private static MethodInfo? _playRandomClipMethod;
+    private static Action? _playRandomClipExpression;
 
     internal static void SendWeatherWarning() {
         if (!IsWeatherWarningEnabled())
@@ -100,11 +107,45 @@ internal static class MessageSender {
 
         animation.fontSize = (int) Plugin.configManager?.textFontSize.Value!;
 
-        animation.animationSpeed = (float) Plugin.configManager?.scrollSpeed.Value!;
+        animation.animationSpeed = Plugin.configManager.scrollSpeed.Value;
 
         animation.text = $"{weatherWarningUpperText}\n{weatherWarningLowerText}".Trim();
 
-        RoundManager.PlayRandomClip(HUDManager.Instance.UIAudio, HUDManager.Instance.warningSFX);
+        // If we already have the method, there's no need to fetch it again
+        if (_playRandomClipExpression is not null) {
+            _playRandomClipExpression();
+            return;
+        }
+
+        var fetched = false;
+
+        // Method body, for reference
+        /*
+           AudioSource audioSource,
+           AudioClip[] clipsArray,
+           bool randomize = true,
+           float oneShotVolume = 1f,
+           int audibleNoiseID = 0,
+           int maxIndex = 1000 // This is new in v50
+         */
+
+        // Since v50 added some new parameter and we'd like to support v49 as well as v50, use this garbage™ to fetch the correct 'PlayRandomClip' method
+        try {
+            // v50 method
+            fetched = FetchAndExecutePlayRandomClipMethod([
+                HUDManager.Instance.UIAudio, HUDManager.Instance.warningSFX, true, 1f, 0, 1000,
+            ]);
+        } catch {
+            // Who needs to logged exceptions anyway, right?
+            // ignored
+        } finally {
+            // Grrrr, I'd love to have Early-Return here...
+            if (!fetched)
+                // v49 method
+                FetchAndExecutePlayRandomClipMethod([
+                    HUDManager.Instance.UIAudio, HUDManager.Instance.warningSFX, true, 1f, 0,
+                ]);
+        }
     }
 
     private static void DisplayMoonChangeAnnouncement(SelectableLevel currentLevel, string announceMoonChangeText) {
@@ -112,5 +153,28 @@ internal static class MessageSender {
 
         hudManager.deviceChangeText.text = announceMoonChangeText.Replace(MOON_PLACEHOLDER, currentLevel.PlanetName);
         hudManager.deviceChangeAnimator.SetTrigger(_Display);
+    }
+
+    private static bool FetchAndExecutePlayRandomClipMethod(IEnumerable<object> parameters) {
+        // Get the method info
+        _playRandomClipMethod ??=
+            typeof(RoundManager).GetMethod("PlayRandomClip", BindingFlags.Public | BindingFlags.Static);
+
+        if (_playRandomClipMethod is null)
+            return false; // Return false, as we failed to identify the method
+
+        // ReSharper disable once CoVariantArrayConversion
+        Expression[] parameterExpressions = parameters.Select(Expression.Constant).ToArray();
+
+        var callExpression = Expression.Call(_playRandomClipMethod, parameterExpressions);
+
+        var lambdaExpression = Expression.Lambda<Action>(callExpression);
+
+        // Compile the lambda expression into a delegate
+        _playRandomClipExpression = lambdaExpression.Compile();
+
+        // Invoke the delegate
+        _playRandomClipExpression();
+        return true; // Return true, as we successfully identified the method
     }
 }
