@@ -94,8 +94,7 @@ public class ConfigManager {
 
         // Clear orphaned entries (Unbinded/Abandoned entries)
         orphanedEntries.Clear();
-        AnnounceMoonAndWeatherChange.Logger.LogWarning(
-            "Unused config entries were deleted. Make sure to check your config!");
+        AnnounceMoonAndWeatherChange.Logger.LogWarning("Unused config entries were deleted. Make sure to check your config!");
 
         _configFile.Save(); // Save the config file to save these changes
     }

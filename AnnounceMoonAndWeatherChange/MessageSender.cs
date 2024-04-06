@@ -157,8 +157,7 @@ internal static class MessageSender {
 
     private static bool FetchAndExecutePlayRandomClipMethod(IEnumerable<object> parameters) {
         // Get the method info
-        _playRandomClipMethod ??=
-            typeof(RoundManager).GetMethod("PlayRandomClip", BindingFlags.Public | BindingFlags.Static);
+        _playRandomClipMethod ??= typeof(RoundManager).GetMethod("PlayRandomClip", BindingFlags.Public | BindingFlags.Static);
 
         if (_playRandomClipMethod is null)
             return false; // Return false, as we failed to identify the method
