@@ -1,5 +1,10 @@
 # Announce Moon And Weather Change Mod<br>
 
+## 2.0.3
+
+\* Fixed issue where re-hosting a lobby would cause problems<br>
+\# v50/v49 detection should be more stable now<br>
+
 ## 2.0.2
 
 \* Mod should now work with latest v50 again
