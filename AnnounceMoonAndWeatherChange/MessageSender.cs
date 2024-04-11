@@ -164,7 +164,7 @@ internal static class MessageSender {
            int maxIndex = 1000 // This is new in v50
          */
 
-        // We use some Call Expressions to ensure these objects always exist
+        // We use some Call Expressions to ensure returned objects always exist
         Expression[] parameters = _playRandomClipMethod?.GetParameters().Length switch {
             // v49
             5 => [
