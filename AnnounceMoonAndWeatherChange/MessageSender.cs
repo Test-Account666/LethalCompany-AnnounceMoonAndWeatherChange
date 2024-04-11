@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using AnnounceMoonAndWeatherChange.WeatherWarningAnimations;
+using HarmonyLib;
 using UnityEngine;
 
 namespace AnnounceMoonAndWeatherChange;
@@ -117,35 +116,8 @@ internal static class MessageSender {
             return;
         }
 
-        var fetched = false;
-
-        // Method body, for reference
-        /*
-           AudioSource audioSource,
-           AudioClip[] clipsArray,
-           bool randomize = true,
-           float oneShotVolume = 1f,
-           int audibleNoiseID = 0,
-           int maxIndex = 1000 // This is new in v50
-         */
-
-        // Since v50 added some new parameter and we'd like to support v49 as well as v50, use this garbage™ to fetch the correct 'PlayRandomClip' method
-        try {
-            // v50 method
-            fetched = FetchAndExecutePlayRandomClipMethod([
-                HUDManager.Instance.UIAudio, HUDManager.Instance.warningSFX, true, 1f, 0, 1000,
-            ]);
-        } catch {
-            // Who needs logged exceptions anyway, right?
-            // ignored
-        } finally {
-            // Grrrr, I'd love to have Early-Return here...
-            if (!fetched)
-                // v49 method
-                FetchAndExecutePlayRandomClipMethod([
-                    HUDManager.Instance.UIAudio, HUDManager.Instance.warningSFX, true, 1f, 0,
-                ]);
-        }
+        // Since we don't know the method to execute yet, let's search for it 
+        FetchAndExecutePlayRandomClipMethod();
     }
 
     private static void DisplayMoonChangeAnnouncement(SelectableLevel currentLevel, string announceMoonChangeText) {
@@ -155,18 +127,15 @@ internal static class MessageSender {
         hudManager.deviceChangeAnimator.SetTrigger(_Display);
     }
 
-    private static bool FetchAndExecutePlayRandomClipMethod(IReadOnlyCollection<object> parameters) {
+    private static void FetchAndExecutePlayRandomClipMethod() {
         // Get the method info
         _playRandomClipMethod ??= typeof(RoundManager).GetMethod("PlayRandomClip", BindingFlags.Public | BindingFlags.Static);
 
         if (_playRandomClipMethod is null)
-            return false; // Return false, as we failed to identify the method
+            return;
 
-        if (_playRandomClipMethod.GetParameters().Length != parameters.Count)
-            return false; // Return false, as we failed to identify the method
-
-        // ReSharper disable once CoVariantArrayConversion
-        Expression[] parameterExpressions = parameters.Select(Expression.Constant).ToArray();
+        // Let's get our parameters
+        var parameterExpressions = GetRequiredParameters();
 
         var callExpression = Expression.Call(_playRandomClipMethod, parameterExpressions);
 
@@ -177,6 +146,49 @@ internal static class MessageSender {
 
         // Invoke the delegate
         _playRandomClipExpression();
-        return true; // Return true, as we successfully identified the method
     }
+
+    public static Expression[] GetRequiredParameters() {
+        Plugin.Logger.LogInfo(_playRandomClipMethod?.GetParameters().Length);
+
+        var getUIAudioMethod = AccessTools.Method(typeof(MessageSender), nameof(GetUIAudio));
+        var getWarningSfxMethod = AccessTools.Method(typeof(MessageSender), nameof(GetWarningSfx));
+
+        // 'PlayRandomClip' Method Parameters, for reference
+        /*
+           AudioSource audioSource,
+           AudioClip[] clipsArray,
+           bool randomize = true,
+           float oneShotVolume = 1f,
+           int audibleNoiseID = 0,
+           int maxIndex = 1000 // This is new in v50
+         */
+
+        // We use some Call Expressions to ensure these objects always exist
+        Expression[] parameters = _playRandomClipMethod?.GetParameters().Length switch {
+            // v49
+            5 => [
+                Expression.Call(getUIAudioMethod), Expression.Call(getWarningSfxMethod), Expression.Constant(true), Expression.Constant(1f),
+                Expression.Constant(0),
+            ],
+            // v50
+            6 => [
+                Expression.Call(getUIAudioMethod), Expression.Call(getWarningSfxMethod), Expression.Constant(true), Expression.Constant(1f),
+                Expression.Constant(0), Expression.Constant(1000),
+            ],
+            // Unsupported version
+            var _ => throw new NotImplementedException("You're using an unsupported version of Lethal Company. Please report this.") {
+                HelpLink = "https://github.com/TheBlackEntity/LethalCompany-AnnounceMoonAndWeatherChange/issues/",
+                Source = "https://github.com/TheBlackEntity/LethalCompany-AnnounceMoonAndWeatherChange",
+            },
+        };
+
+        return parameters;
+    }
+
+    private static AudioSource GetUIAudio() =>
+        HUDManager.Instance.UIAudio;
+
+    private static AudioClip[] GetWarningSfx() =>
+        HUDManager.Instance.warningSFX;
 }
