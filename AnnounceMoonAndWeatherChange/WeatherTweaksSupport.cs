@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Resources;
 using HarmonyLib;
 
 namespace AnnounceMoonAndWeatherChange;
@@ -18,9 +19,30 @@ public static class WeatherTweaksSupport {
         if (_getPlanetCurrentWeatherMethod == null && !FetchGetPlanetCurrentWeatherMethod())
             return currentWeather;
 
-        return _getPlanetCurrentWeatherMethod?.Invoke(null, [
-            selectableLevel,
-        ]) as string;
+        if (_getPlanetCurrentWeatherMethod == null)
+            return currentWeather;
+
+        object[] parameters;
+
+        switch (_getPlanetCurrentWeatherMethod.GetParameters().Length) {
+            case 2:
+                parameters = [
+                    selectableLevel, true,
+                ];
+                break;
+            case 1:
+                parameters = [
+                    selectableLevel,
+                ];
+                break;
+
+            default:
+                AnnounceMoonAndWeatherChange.Logger.LogError("You're using an unsupported version of WeatherTweaks!");
+                enabled = false;
+                return null;
+        }
+
+        return _getPlanetCurrentWeatherMethod?.Invoke(null, parameters) as string;
     }
 
     private static bool FetchVariablesType() {
@@ -38,6 +60,10 @@ public static class WeatherTweaksSupport {
     private static bool FetchGetPlanetCurrentWeatherMethod() {
         var getPlanetCurrentWeatherMethod = AccessTools.DeclaredMethod(_variablesType, "GetPlanetCurrentWeather", [
             typeof(SelectableLevel),
+        ]);
+
+        getPlanetCurrentWeatherMethod ??= AccessTools.DeclaredMethod(_variablesType, "GetPlanetCurrentWeather", [
+            typeof(SelectableLevel), typeof(bool),
         ]);
 
         if (getPlanetCurrentWeatherMethod == null) {
