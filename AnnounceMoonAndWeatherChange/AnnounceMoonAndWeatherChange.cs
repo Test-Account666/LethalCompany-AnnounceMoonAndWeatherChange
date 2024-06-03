@@ -1,4 +1,5 @@
 ﻿using System;
+using AnnounceMoonAndWeatherChange.LobbyCompatibility;
 using AnnounceMoonAndWeatherChange.WeatherWarningAnimations.Impl;
 using BepInEx;
 using BepInEx.Logging;
@@ -8,6 +9,7 @@ namespace AnnounceMoonAndWeatherChange;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency("WeatherTweaks", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("BMX.LobbyCompatibility", BepInDependency.DependencyFlags.SoftDependency)]
 public class AnnounceMoonAndWeatherChange : BaseUnityPlugin {
     internal static ConfigManager? configManager;
 
@@ -21,6 +23,11 @@ public class AnnounceMoonAndWeatherChange : BaseUnityPlugin {
     private void Awake() {
         Logger = base.Logger;
         Instance = this;
+
+        if (DependencyChecker.IsLobbyCompatibilityInstalled()) {
+            Logger.LogInfo("Found LobbyCompatibility Mod, initializing support :)");
+            LobbyCompatibilitySupport.Initialize();
+        }
 
         InitializeDefaultAnimations();
 
