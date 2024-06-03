@@ -20,6 +20,10 @@ internal static class MessageSender {
         if (!IsWeatherWarningEnabled())
             return;
 
+        var previousAnimation = HUDManager.Instance.gameObject.GetComponent<WarningAnimation>();
+
+        previousAnimation?.SpeedUp();
+
         var currentLevel = StartOfRound.Instance.currentLevel;
         if (currentLevel == null || IsWeatherOnMoonNone(currentLevel))
             return;
@@ -68,10 +72,11 @@ internal static class MessageSender {
             return isClear;
 
         var currentWeather = WeatherTweaksSupport.GetCurrentWeather(selectableLevel);
-        if (currentWeather == null)
-            return isClear;
+        if (currentWeather != null)
+            return currentWeather.ToLower().Equals("none") && isClear;
 
-        return currentWeather.ToLower().Contains("none") && isClear;
+        Plugin.Logger.LogInfo("Current Weather is null???");
+        return isClear;
     }
 
     private static void DisplayWeatherWarning(SelectableLevel currentLevel, string weather) {
@@ -79,12 +84,6 @@ internal static class MessageSender {
         var weatherWarningLowerText = Plugin.configManager?.weatherWarningLowerText.Value
                                             .Replace(MOON_PLACEHOLDER, currentLevel.PlanetName)
                                             .Replace(WEATHER_PLACEHOLDER, weather);
-
-        var previousAnimation = HUDManager.Instance.gameObject.GetComponent<WarningAnimation>();
-
-        // ReSharper disable once UseNullPropagation
-        if (previousAnimation is not null)
-            previousAnimation.SpeedUp();
 
         var animationType = AnimationManager.GetCurrentAnimation();
 
@@ -148,7 +147,7 @@ internal static class MessageSender {
         _playRandomClipExpression();
     }
 
-    public static Expression[] GetRequiredParameters() {
+    private static Expression[] GetRequiredParameters() {
         Plugin.Logger.LogInfo(_playRandomClipMethod?.GetParameters().Length);
 
         var getUIAudioMethod = AccessTools.Method(typeof(MessageSender), nameof(GetUIAudio));
@@ -178,8 +177,8 @@ internal static class MessageSender {
             ],
             // Unsupported version
             var _ => throw new NotImplementedException("You're using an unsupported version of Lethal Company. Please report this.") {
-                HelpLink = "https://github.com/TheBlackEntity/LethalCompany-AnnounceMoonAndWeatherChange/issues/",
-                Source = "https://github.com/TheBlackEntity/LethalCompany-AnnounceMoonAndWeatherChange",
+                HelpLink = "https://github.com/Test-Account666/LethalCompany-AnnounceMoonAndWeatherChange/issues/",
+                Source = "https://github.com/Test-Account666/LethalCompany-AnnounceMoonAndWeatherChange",
             },
         };
 
