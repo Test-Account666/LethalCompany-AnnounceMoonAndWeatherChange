@@ -1,5 +1,15 @@
 # Announce Moon And Weather Change Mod<br>
 
+## 2.0.5
+
+\* Fix changelog .-.
+
+## 2.0.4
+
+\+ Add LobbyCompatibility support
+\* Fix compatibility with WeatherTweaks
+\* Weather Warning now speeds up even if there's no other warning to display (e.g. routing from Stormy to Clear moon)
+
 ## 2.0.3
 
 \* Fixed issue where re-hosting a lobby would cause problems<br>
