@@ -2,13 +2,14 @@
 
 ## 2.0.5
 
-\* Fix changelog .-.
+\* Fix changelog .-.<br>
 
 ## 2.0.4
 
-\+ Add LobbyCompatibility support
-\* Fix compatibility with WeatherTweaks
-\* Weather Warning now speeds up even if there's no other warning to display (e.g. routing from Stormy to Clear moon)
+\+ Add LobbyCompatibility support<br>
+\* Fix compatibility with WeatherTweaks<br>
+\* Weather Warning now speeds up even if there's no other warning to display (e.g. routing from Stormy to Clear
+moon)<br>
 
 ## 2.0.3
 
